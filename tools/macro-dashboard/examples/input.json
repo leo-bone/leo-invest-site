@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-20",
+  "variables": {
+    "interest": {"value": 1.8, "direction": "lower_better",
+                 "thresholds": {"friendly": 1.5, "alert": 2.5},
+                 "note": "实际利率 1.8%，走平"},
+    "credit":   {"state": "friendly", "note": "HY 利差 320bp，收窄"},
+    "earnings": {"state": "neutral", "note": "盈利修正广度 50%"},
+    "liquidity":{"state": "alert", "note": "央行缩表，基础货币同比转负"}
+  },
+  "next_watch": "下周关注：流动性是否继续收缩（M2 增速）、信用利差是否跟随走阔。"
+}

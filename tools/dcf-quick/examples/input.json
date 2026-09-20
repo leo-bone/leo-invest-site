@@ -1,0 +1,11 @@
+{
+  "shares": 800,
+  "net_debt": 1200,
+  "price": 18.0,
+  "base_fcf": 1500,
+  "years": 5,
+  "growth": [0.15, 0.12, 0.10, 0.08, 0.06],
+  "wacc": 0.09,
+  "terminal": {"method": "gordon", "g": 0.025},
+  "downside": {"growth_haircut": 0.4, "wacc_uplift_bp": 120, "margin_compression": 0.0}
+}
