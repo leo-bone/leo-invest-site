@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>可比公司估值（Comps）：一套可复用的分析框架 · Leo</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav__brand" href="../index.html">Leo</a>
+    <nav class="nav__links"><a href="../index.html#writing">← 文章</a></nav>
+  </header>
+  <main>
+    <article class="post-page">
+      <p class="post__date">2026-09-20 · 估值</p>
+      <h1 class="post-page__title">可比公司估值（Comps）：一套可复用的分析框架</h1>
+
+      <p>
+        Comps（相对估值 / 可比公司分析）是被用得最多、也最容易被做成"花活"的方法。
+        它简单到一张表就能填完，但也正因为简单，大多数人止步于"找几个同行、贴几个倍数、取个平均"。
+        这篇把 Comps 收敛成<strong>八步可复现流程</strong>——也是我做成 <code>valuation-comps</code> skill 的内核。
+      </p>
+
+      <h2>一、先想清楚：Comps 回答的是什么问题</h2>
+      <p>
+        Comps 不回答"公司值多少钱"的绝对值，它回答的是：<strong>"市场现在愿意为这类生意付多少倍？"</strong>
+        它是一个相对锚，不是内在价值。用它做决策前，先承认这一点——倍数扩张和收缩，往往比基本面更能解释短期涨跌。
+      </p>
+
+      <h2>二、八步流程</h2>
+      <ol>
+        <li><strong>定标的</strong>：明确分析对象（代码或名称），确定它是买方视角（我要不要买）还是卖方视角（该卖多少）。</li>
+        <li><strong>选 peer</strong>：按"业务同质 + 规模可比 + 市场相同"三维筛，而非简单按行业标签。3–8 家最佳，太少噪音大，太多稀释信号。</li>
+        <li><strong>取倍数</strong>：EV/Revenue、EV/EBITDA、P/E、P/S 按需取，成长股重 EV/Revenue，盈利稳定重 EV/EBITDA / P/E。</li>
+        <li><strong>对齐口径</strong>：用归一化倍数（NTM 或 FY+1），剔除一次性损益，统一资本结构口径。</li>
+        <li><strong>算中心趋势</strong>：报告<strong>中位数</strong>为主、均值为辅——中位数对 outlier 更稳。</li>
+        <li><strong>做敏感性</strong>：用 25/50/75 分位倍数 × 标的预测指标，给出估值区间，而非单点。</li>
+        <li><strong>隐含校验</strong>：把 Comps 结果和 DCF / 交易可比（precedent transactions）交叉验证，偏离大就复盘 peer 选择。</li>
+        <li><strong>出结论</strong>：明确"相对贵 / 合理 / 便宜"，并给出触发重估的变量（不是点位预测）。</li>
+      </ol>
+
+      <h2>三、一个示例表（占位，非真实数据）</h2>
+      <p>下面用示意数字展示输出形态，仅用于说明结构：</p>
+      <table class="tbl">
+        <thead>
+          <tr><th>可比公司</th><th>EV/Rev</th><th>EV/EBITDA</th><th>P/E</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Peer A</td><td>4.2x</td><td>14.1x</td><td>22.0x</td></tr>
+          <tr><td>Peer B</td><td>3.6x</td><td>12.8x</td><td>19.5x</td></tr>
+          <tr><td>Peer C</td><td>5.1x</td><td>16.3x</td><td>25.4x</td></tr>
+          <tr class="tbl__mid"><td>中位数</td><td>4.2x</td><td>14.1x</td><td>22.0x</td></tr>
+        </tbody>
+      </table>
+      <p>
+        标的若交易在 EV/EBITDA 10x，而 peer 中位数 14x，则相对便宜——但<strong>必须解释差价的来源</strong>：
+        是增长慢、杠杆高、还是市场没看到拐点？便宜如果没有理由，就是价值陷阱。
+      </p>
+
+      <h2>四、最常见的三个坑</h2>
+      <ul>
+        <li><strong>peer 太宽</strong>：把不同商业模式的公司硬凑，倍数失去意义。</li>
+        <li><strong>只看均值</strong>：被一两家极端估值带偏，中位数才是稳的锚。</li>
+        <li><strong>把 Comps 当真理</strong>：倍数反映的是市场情绪，不是内在价值；它该和绝对估值互相印证，而不是互相替代。</li>
+      </ul>
+
+      <p>
+        这套框架已经做成 <code>valuation-comps</code> skill（见<a href="../index.html#tools">工具</a>），
+        给一个标的就能自动跑完八步并产出同样的表。能复用，才值得做。
+      </p>
+    </article>
+  </main>
+  <footer class="footer">
+    <span>© 2026 Leo</span>
+    <span><a href="../index.html">返回首页</a></span>
+  </footer>
+</body>
+</html>

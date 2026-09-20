@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leo · 投资人 / 创业者 / 前大学教师</title>
+  <meta name="description" content="Leo 的个人站点：投资分析、实战框架与可复用工具。大学教师出身，世界500强历练，创业者，现任 CEO。" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav__brand" href="#top">Leo</a>
+    <nav class="nav__links">
+      <a href="#about">关于</a>
+      <a href="#writing">文章</a>
+      <a href="#tools">工具</a>
+      <a href="#contact">联系</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <p class="hero__eyebrow">投资人 · 创业者 · 前大学教师</p>
+      <h1 class="hero__name">Leo</h1>
+      <p class="hero__tagline">
+        从讲台到世界500强，从一级市场到自己的公司。<br />
+        这里记录我对<strong>估值、宏观与个人判断</strong>的实战框架——不追热点，只复盘能反复用的东西。
+      </p>
+      <div class="hero__meta">
+        <span>现任 CEO</span><span class="dot">·</span>
+        <span>曾执教大学</span><span class="dot">·</span>
+        <span>世界500强背景</span><span class="dot">·</span>
+        <span>投资 / 创业</span>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <h2 class="section__title">关于</h2>
+      <div class="about">
+        <p>
+          我做过四种角色，顺序大致是：大学教师 → 世界500强 → 投资人 → 创业者，现在是自己公司的 CEO。
+          这条路径没有刻意规划，但回头看有一条主线——<strong>一直在把"判断"这件事从书本搬进真金白银的场景里验证</strong>。
+        </p>
+        <p>
+          在大学教书，训练的是把复杂的东西讲清楚；在500强，看到的是大系统在约束下如何运转；
+          做投资，逼着我把每一个观点押上仓位；创业，则是把前面所有教训一次性兑现或清零。
+          这四个视角叠在一起，是我看公司和看市场时和纯卖方、纯学术都不一样的地方。
+        </p>
+        <p>
+          这个站点分两块：<a href="#writing">文章</a>是我沉淀的分析框架与复盘，
+          <a href="#tools">工具</a>是我把常用分析流程做成、可复用的 agent skill——和写文章一样，能复用才值得做。
+        </p>
+        <div class="about__chips">
+          <span class="chip">估值 / Comps</span>
+          <span class="chip">宏观与风险资产</span>
+          <span class="chip">一级 &amp; 二级</span>
+          <span class="chip">创业复盘</span>
+          <span class="chip">决策框架</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- WRITING -->
+    <section id="writing" class="section">
+      <h2 class="section__title">文章</h2>
+      <p class="section__lead">投资分析、框架与复盘。少而精，每篇都能拿来用。</p>
+      <ul class="posts">
+        <li class="post">
+          <a href="posts/valuation-comps-guide.html">
+            <span class="post__date">2026-09-20</span>
+            <span class="post__title">可比公司估值（Comps）：一套可复用的分析框架</span>
+            <span class="post__excerpt">选 peer、取倍数、算中位数、推导隐含估值区间。把最容易做成"花活"的 Comps 收敛成可复现的八步。</span>
+            <span class="post__tag">估值</span>
+          </a>
+        </li>
+        <li class="post">
+          <a href="posts/macro-2026.html">
+            <span class="post__date">2026-09-18</span>
+            <span class="post__title">2026 宏观：我用哪几个变量判断风险资产</span>
+            <span class="post__excerpt">不预测点位，只盯驱动链。利率、信用、盈利预期、流动性——四个变量如何决定仓位的攻守。</span>
+            <span class="post__tag">宏观</span>
+          </a>
+        </li>
+        <li class="post">
+          <a href="posts/judgment-retro.html">
+            <span class="post__date">2026-09-12</span>
+            <span class="post__title">从大学教师到创业者：我对"判断"这件事的复盘</span>
+            <span class="post__excerpt">讲台上的判断零成本，市场上的判断要付学费。四种角色教会我的，是给每个判断标上代价。</span>
+            <span class="post__tag">复盘</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- TOOLS -->
+    <section id="tools" class="section">
+      <h2 class="section__title">工具</h2>
+      <p class="section__lead">我把常用分析流程做成可复用的 agent skill，思路同 Zara 的 frontend-slides——代码只是表达媒介，能复用才值钱。三个都已开源，可直接加载使用。</p>
+      <div class="tools">
+        <article class="tool">
+          <div class="tool__head">
+            <h3>valuation-comps</h3>
+            <span class="tool__stars">开源 · skill</span>
+          </div>
+          <p>给一个标的（代码或名称），自动拉同业、取倍数、建 Comps 表、给隐含估值区间。投资分析的第一性工具。</p>
+          <a class="tool__link" href="tools/valuation-comps/SKILL.md">查看 SKILL.md →</a>
+        </article>
+        <article class="tool">
+          <div class="tool__head">
+            <h3>dcf-quick</h3>
+            <span class="tool__stars">开源 · skill</span>
+          </div>
+          <p>单页 DCF：少假设、强约束，先给最坏情况再谈机会。对标"仓位由下行倒推"的纪律。</p>
+          <a class="tool__link" href="tools/dcf-quick/SKILL.md">查看 SKILL.md →</a>
+        </article>
+        <article class="tool">
+          <div class="tool__head">
+            <h3>macro-dashboard</h3>
+            <span class="tool__stars">开源 · skill</span>
+          </div>
+          <p>把宏观四变量做成可刷新的监控面板，每周一次，决定仓位的攻守切换。</p>
+          <a class="tool__link" href="tools/macro-dashboard/SKILL.md">查看 SKILL.md →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <h2 class="section__title">联系</h2>
+      <p class="section__lead">投资、合作或只是想聊聊框架，欢迎直接说。</p>
+      <ul class="contact">
+        <li>邮箱：<a href="mailto:leo@example.com">leo@example.com</a></li>
+        <li>GitHub：<a href="https://github.com/leo-bone" target="_blank" rel="noopener">github.com/leo-bone</a></li>
+        <li>X / 微博：<a href="#" target="_blank" rel="noopener">@your-handle</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Leo</span>
+    <span>静态站点 · 自有域名 · 零成本托管</span>
+  </footer>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
