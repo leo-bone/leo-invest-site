@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trading Comps: A Workflow You Can Actually Reproduce · Leo</title>
+  <meta name="description" content="Comps as an eight-step reproducible workflow: peer screening, multiple alignment, quartiles instead of averages, implied range, and the three mistakes that ruin most comps tables." />
+  <link rel="stylesheet" href="../../assets/style.css" />
+  <link rel="alternate" hreflang="zh-CN" href="https://leo.uichain.org/posts/valuation-comps-guide.html" />
+  <link rel="alternate" hreflang="en" href="https://leo.uichain.org/en/posts/valuation-comps-guide.html" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav__brand" href="../index.html">Leo</a>
+    <nav class="nav__links">
+      <a href="../writing.html">← All articles</a>
+      <span class="lang-switch">
+        <a href="../../posts/valuation-comps-guide.html">中文</a>
+        <a href="valuation-comps-guide.html" class="is-active">EN</a>
+      </span>
+    </nav>
+  </header>
+  <main>
+    <article class="post-page">
+      <p class="post__date">2026-09-20 · Valuation</p>
+      <h1 class="post-page__title">Trading Comps: A Workflow You Can Actually Reproduce</h1>
+
+      <p>
+        Comps — relative valuation, comparable company analysis — is the most used and most easily
+        faked method in equity work. It's simple enough to fill in on one sheet, and precisely because
+        it's simple most people stop at "find a few peers, paste some multiples, take an average."
+        This piece compresses comps into an <strong>eight-step reproducible workflow</strong>, which is
+        also the core of the <code>valuation-comps</code> skill.
+      </p>
+
+      <h2>First: what question does comps actually answer?</h2>
+      <p>
+        Comps does not answer "what is this company worth" in absolute terms. It answers:
+        <strong>what multiple is the market currently willing to pay for this kind of business?</strong>
+        It's a relative anchor, not intrinsic value. Admit that before you decide anything with it —
+        multiple expansion and contraction explain short-term moves more often than fundamentals do.
+      </p>
+
+      <h2>The eight steps</h2>
+      <ol>
+        <li><strong>Define the target</strong>: name the subject (ticker or company) and fix the vantage — buy-side (should I buy) or sell-side (what should it fetch).</li>
+        <li><strong>Screen peers</strong>: filter on three axes — same business, comparable scale, same market — not on an industry label. Three to eight names is the sweet spot; fewer is noise, more dilutes the signal.</li>
+        <li><strong>Pull multiples</strong>: EV/Revenue, EV/EBITDA, P/E, P/S as appropriate. Growth names lean on EV/Revenue; stable earners on EV/EBITDA and P/E.</li>
+        <li><strong>Align definitions</strong>: use normalised multiples (NTM or FY+1), strip one-off items, unify capital-structure treatment.</li>
+        <li><strong>Compute the centre</strong>: report the <strong>median</strong> as primary and the mean as secondary — the median is far steadier against outliers.</li>
+        <li><strong>Run sensitivity</strong>: 25th / 50th / 75th percentile multiples against the target's forecast metric to produce a range, not a point.</li>
+        <li><strong>Cross-check</strong>: reconcile the comps result against DCF and precedent transactions. A large gap means you go back and re-examine peer selection.</li>
+        <li><strong>Conclude</strong>: state expensive / fair / cheap explicitly, and name the variables that would trigger a re-rating. Not a price target.</li>
+      </ol>
+
+      <h2>A sample table (illustrative figures, not real data)</h2>
+      <p>The numbers below exist only to show the output shape:</p>
+      <table class="tbl">
+        <thead>
+          <tr><th>Peer</th><th>EV/Rev</th><th>EV/EBITDA</th><th>P/E</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Peer A</td><td>4.2x</td><td>14.1x</td><td>22.0x</td></tr>
+          <tr><td>Peer B</td><td>3.6x</td><td>12.8x</td><td>19.5x</td></tr>
+          <tr><td>Peer C</td><td>5.1x</td><td>16.3x</td><td>25.4x</td></tr>
+          <tr class="tbl__mid"><td>Median</td><td>4.2x</td><td>14.1x</td><td>22.0x</td></tr>
+        </tbody>
+      </table>
+      <p>
+        If the target trades at 10x EV/EBITDA against a peer median of 14x, it looks cheap — but
+        <strong>you have to account for the discount</strong>. Slower growth, more leverage, or a
+        turnaround the market hasn't priced yet? Cheapness without a reason is a value trap.
+      </p>
+
+      <h2>Three mistakes that wreck most comps</h2>
+      <ul>
+        <li><strong>Peers too broad</strong>: forcing companies with different business models into one set makes the multiples meaningless.</li>
+        <li><strong>Mean only</strong>: one or two extreme valuations drag it. The median is the stable anchor.</li>
+        <li><strong>Treating comps as truth</strong>: multiples reflect sentiment, not intrinsic value. Relative and absolute valuation should corroborate each other, not replace each other.</li>
+      </ul>
+
+      <p>
+        This workflow is packaged as the <code>valuation-comps</code> skill — give it a target and it
+        runs the eight steps and produces the same table. If it can't be re-run, it isn't worth
+        building.
+      </p>
+
+      <p style="margin-top: 34px;"><a class="backlink" href="../writing.html">← All articles</a></p>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Leo</span>
+    <span>Static site · own domain · zero-cost hosting</span>
+  </footer>
+</body>
+</html>

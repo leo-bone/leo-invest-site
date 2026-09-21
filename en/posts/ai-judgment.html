@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Doesn't Make Your Judgement — It Amplifies the One You Already Have · Leo</title>
+  <meta name="description" content="What I learned building three analysis skills with coding agents: give the arithmetic to a script, write the workflow down, and keep the judgement." />
+  <link rel="stylesheet" href="../../assets/style.css" />
+  <link rel="alternate" hreflang="zh-CN" href="https://leo.uichain.org/posts/ai-judgment.html" />
+  <link rel="alternate" hreflang="en" href="https://leo.uichain.org/en/posts/ai-judgment.html" />
+</head>
+<body>
+  <header class="nav">
+    <a class="nav__brand" href="../index.html">Leo</a>
+    <nav class="nav__links">
+      <a href="../writing.html">← All articles</a>
+      <span class="lang-switch">
+        <a href="../../posts/ai-judgment.html">中文</a>
+        <a href="ai-judgment.html" class="is-active">EN</a>
+      </span>
+    </nav>
+  </header>
+  <main>
+    <article class="post-page">
+      <p class="post__date">2026-09-21 · AI</p>
+      <h1 class="post-page__title">AI Doesn't Make Your Judgement — It Amplifies the One You Already Have</h1>
+
+      <p>
+        Over the past stretch I built three analysis skills with a coding agent: trading comps, a
+        one-page DCF, and a weekly macro panel. Before starting I assumed the payoff would be time
+        saved. It wasn't. The real change was that my workflow got forced into written form, where
+        nothing vague can hide.
+      </p>
+
+      <h2>It can't do a division reliably — and that's not really the problem</h2>
+      <p>
+        At first I had the agent produce the comps table directly. It fetched plausible data, and the
+        median was always slightly off. The reason isn't mysterious: it is <em>generating a plausible
+        answer</em>, not computing one. Ask it for the median of four multiples and you get a number
+        that looks right and isn't.
+      </p>
+      <p>
+        So I split the work: the agent finds the data, aligns definitions and writes the conclusion;
+        a Python script does every calculation, and the agent reads the result afterwards. The script
+        carries the red lines — WACC at or below terminal growth throws an error, missing data is
+        marked N/A, no filling gaps with an invented number. That division of labour sounds like
+        common sense, but what it actually changed was the structure of trust: I can now say exactly
+        how each column was produced.
+      </p>
+
+      <h2>When your process is fuzzy, it scales the fuzz into something that looks professional</h2>
+      <p>
+        This is the strongest thing I took away from the three builds. If your process is really
+        "pick a few peers by feel, roughly align the multiples," the agent will execute that fuzzy
+        process with enormous diligence and hand you something beautifully formatted, correctly
+        worded and quietly wrong. It won't correct your method. It will run your method faster.
+      </p>
+      <p>
+        The flip side is that when the process is clear, it's remarkably good. Screening peers used to
+        be a matter of judgement for me; now it's three hard criteria — overlap of business model,
+        size band, geography and regulatory environment. Once it was written down I noticed something
+        uncomfortable: I used to quietly relax the second criterion, because genuinely comparable
+        companies are scarce and one extra name makes the numbers look better. Once the shortcut is
+        written down, you become too embarrassed to keep taking it.
+      </p>
+
+      <h2>Writing the SKILL.md is itself a retro</h2>
+      <p>
+        To hand a task to an agent you have to state what each step takes in, what it produces, and
+        when it must stop. Everywhere you can't say it is somewhere you haven't thought it through.
+      </p>
+      <p>
+        Take "downside floor." In my head it had always been a comfortable blur: roughly what this
+        company is worth when conditions are bad. Trying to specify it exposed that the blur wouldn't
+        stand up — does bad mean growth gets revised down, or the discount rate goes up? What if both?
+        How much? It ended up as three parameters: growth haircut, WACC uplift, margin compression,
+        each requiring a stated reason. Only after that did the vague version become something I can
+        run repeatedly.
+      </p>
+
+      <h2>The judgement is still mine</h2>
+      <p>
+        What the tool can take over is fetching, arithmetic, formatting and repetition. What it can't
+        take over is the flicker of "that number isn't right" when I look at a figure. That instinct
+        has an unglamorous source: I've lost real money on numbers of exactly this kind.
+      </p>
+      <p>
+        So my position on AI is neither embrace nor suspicion, it's a division of labour. Whatever can
+        be written down goes out; whatever can't stays with me. And then you have to be honest that
+        the second part is the part that's actually worth something.
+      </p>
+
+      <p style="margin-top: 34px;"><a class="backlink" href="../writing.html">← All articles</a></p>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Leo</span>
+    <span>Static site · own domain · zero-cost hosting</span>
+  </footer>
+</body>
+</html>

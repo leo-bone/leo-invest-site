@@ -334,6 +334,28 @@ main {
 a.chip { text-decoration: none; }
 a.chip:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ---------- LANG SWITCH ---------- */
+.lang-switch {
+  margin-left: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.lang-switch a {
+  margin-left: 0;
+  padding: 4px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.lang-switch a + a { border-left: 1px solid var(--line); }
+.lang-switch a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+.lang-switch a.is-active { color: #fff; background: var(--ink); }
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 600px) {
   .timeline li { grid-template-columns: 1fr; gap: 2px; }
