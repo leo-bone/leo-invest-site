@@ -1,25 +1,60 @@
 # macro-dashboard
 
-> 每周刷新四个驱动变量（利率 / 信用 / 盈利预期 / 流动性），输出"攻守开关"而非点位预测。
-> 把"仓位由最坏情况倒推"的纪律变成可周更的仪表盘——自上而下开关层。
+> **English** · [简体中文](README_CN.md) · [Site](https://leo.uichain.org/)
 
-设计哲学：代码只是表达媒介，**能复用、能复现、能校验**才值得做（致敬 Zara Zhang 的 `frontend-slides`）。
+[![CI](https://github.com/leo-bone/macro-dashboard/actions/workflows/test.yml/badge.svg)](https://github.com/leo-bone/macro-dashboard/actions/workflows/test.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![Dependencies](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen.svg)](scripts/)
+[![Agent Skill](https://img.shields.io/badge/agent--skill-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-blueviolet.svg)](SKILL.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## 为什么可靠
-- **硬规则内建**：信用或流动性任一警戒 = 强制防守，脚本覆盖绿灯数，避免人为乐观调整档位。
-- **阈值可配置**：`references/indicators.md` 给出四变量的具体指标与判定阈值，agent 按阈值分类而非拍脑袋。
-- **可周更留痕**：每周 append 快照，回看信号转折。
+**A weekly regime switch, not a price forecast.**
 
-## 快速开始
-```bash
-# 跑内置自检
-python3 scripts/score_snapshot_test.py
+Four variables — rates, credit, earnings expectations, liquidity — refreshed weekly and turned
+into one word: attack, neutral, or defend. No target prices, no "the market will…". Just the
+question that actually governs how much risk you should be carrying.
 
-# 用输入 JSON 判档位（结构见 examples/input.json）
-python3 scripts/score_snapshot.py --input examples/input.json
+```
+**日期**：2026-09-20 ｜ **绿灯数**：1/4
+
+| 变量 | 状态 | 信号 |
+|---|---|---|
+| 利率 | 🟡 neutral | 实际利率 1.8%，走平 |
+| 信用 | 🟢 friendly | HY 利差 320bp，收窄 |
+| 盈利预期 | 🟡 neutral | 盈利修正广度 50% |
+| 流动性 | 🔴 alert | 央行缩表，基础货币同比转负 |
+
+### 攻守结论：**强制防守（信用/流动性报警）**
 ```
 
-输入 JSON 结构（状态可由 agent 直接给，或给数值+阈值由脚本分类）：
+Note what happened here: only one light is green, but the verdict is driven by a **hard rule**,
+not a vote.
+
+## The hard rule
+
+> **If credit OR liquidity is on alert → forced defense, regardless of green-light count.**
+
+Three friendly variables cannot outvote broken credit. Credit and liquidity are the two that
+break first and break fastest; the script encodes that rather than leaving it to judgement in
+the moment. See [`references/regime_rules.md`](references/regime_rules.md).
+
+| Green lights | Regime |
+|---|---|
+| 4 | Full attack |
+| 3 | Attack |
+| 2 | Neutral |
+| 1 | Defense |
+| 0 | Full defense |
+
+## Quick start
+
+```bash
+python3 scripts/score_snapshot_test.py                       # verify the rules (CI runs this too)
+python3 scripts/score_snapshot.py --input examples/input.json # run the sample
+```
+
+You can hand it either a state or a number plus thresholds — the script classifies:
+
 ```json
 {
   "date": "2026-09-20",
@@ -27,29 +62,34 @@ python3 scripts/score_snapshot.py --input examples/input.json
     "interest": {"value": 1.8, "direction": "lower_better",
                  "thresholds": {"friendly": 1.5, "alert": 2.5},
                  "note": "实际利率 1.8%，走平"},
-    "credit":   {"state": "friendly", "note": "HY 利差 320bp，收窄"},
-    "earnings": {"state": "neutral", "note": "盈利修正广度 50%"},
-    "liquidity":{"state": "alert", "note": "央行缩表"}
+    "credit":    {"state": "friendly", "note": "HY 利差 320bp，收窄"},
+    "earnings":  {"state": "neutral",  "note": "盈利修正广度 50%"},
+    "liquidity": {"state": "alert",    "note": "央行缩表"}
   }
 }
 ```
 
-## 攻守档位规则
-| 绿灯数 | 档位 |
+Exact indicator definitions and threshold values live in
+[`references/indicators.md`](references/indicators.md), so the agent classifies against a written
+standard instead of improvising one each week.
+
+## Why weekly
+
+One-off macro reads decay immediately. Append a dated snapshot every week and you get something
+more valuable than any single call: **a record of when the signal actually turned**, which you
+can compare against what you believed at the time.
+
+## Part of a three-skill loop
+
+| Skill | Question it answers |
 |---|---|
-| 4 | 满格进攻 |
-| 3 | 进攻 |
-| 2 | 中性 |
-| 1 | 防御 |
-| 0 | 全面防御 |
+| **macro-dashboard** (here) | Should I be deploying capital at all right now? |
+| [**valuation-comps**](https://github.com/leo-bone/valuation-comps) | Is this cheap or expensive relative to its peers? |
+| [**dcf-quick**](https://github.com/leo-bone/dcf-quick) | What is it worth, what is my downside, how big a position? |
 
-**硬规则**：信用或流动性任一警戒 → 强制防守（覆盖绿灯数）。
+Switch first, screen second, price third. This skill sets the ceiling on risk; the other two
+decide what to do inside it.
 
-## 与同系列 skill 的关系
-- `macro-dashboard`：现在该不该满仓买（开关）。
-- `dcf-quick`：买什么、下行地板与仓位倒推（定价 + 纪律）。
-- `valuation-comps`：相对贵贱校验（相对锚）。
-- 闭环：宏观开关 → 选股（comps）→ 定价与仓位（dcf）。
+## License
 
-## 许可
-MIT。结论仅供参考，投资决策由人负责。
+MIT. A regime call is a starting position for thinking, not a trading signal.

@@ -1,26 +1,39 @@
 # dcf-quick
 
-> 给一个标的，单页产出**两阶段 DCF 估值区间 + 下行地板**，并把"最大仓位"由最坏情况倒推，而非由机会大小正推。
-> 投资纪律的量化外骨骼——绝对估值锚。
+> **English** · [简体中文](README_CN.md) · [Site](https://leo.uichain.org/)
 
-设计哲学：代码只是表达媒介，**能复用、能复现、能校验**才值得做（致敬 Zara Zhang 的 `frontend-slides`）。
+[![CI](https://github.com/leo-bone/dcf-quick/actions/workflows/test.yml/badge.svg)](https://github.com/leo-bone/dcf-quick/actions/workflows/test.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![Dependencies](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen.svg)](scripts/)
+[![Agent Skill](https://img.shields.io/badge/agent--skill-Claude%20%C2%B7%20Codex%20%C2%B7%20WorkBuddy-blueviolet.svg)](SKILL.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## 为什么可靠
-- **算术交给脚本**：`scripts/dcf_calc.py` 做折现、敏感性矩阵、下行地板、仓位倒推，agent 不心算。
-- **纪律内建**：下行地板 < 基准值、WACC>g 等红线由脚本强制校验，假设矛盾直接报错。
-- **可辩护边界**：`references/assumptions_bounds.md` 给出 WACC/增长率的可辩护范围，超出必须论证。
-- **交叉验证**：与 `valuation-comps` 偏离 >20% 时禁止直接下结论。
+**A one-page DCF that tells you how much to buy — not just what it's worth.**
 
-## 快速开始
-```bash
-# 跑内置自检
-python3 scripts/dcf_calc_test.py
+Most DCFs answer "what is this worth?" and stop there. That number is then used to justify a
+position size chosen by enthusiasm. This skill inverts the order: it computes a **downside
+floor** first, and derives the **maximum position from the worst case** rather than from how
+large the upside looks.
 
-# 用输入 JSON 计算（结构见 examples/input.json）
-python3 scripts/dcf_calc.py --input examples/input.json
+```
+### 下行地板（worst-case）
+- 假设：增长下修 40%、WACC +120bp、利润率/倍数压缩 0%
+- **下行地板每股：25.33**
+- 当前市价：18.00 ｜ 安全边际（地板/市价）：1.41×
+
+### 仓位倒推（由最坏情况，非机会大小）
+- **档位：小仓** ｜ 下行地板/市价=1.41×，仅小仓（≤组合 5–10%）
 ```
 
-输入 JSON 最小结构：
+## Quick start
+
+```bash
+python3 scripts/dcf_calc_test.py                        # verify the math (CI runs this too)
+python3 scripts/dcf_calc.py --input examples/input.json # run the sample
+```
+
+Minimal input:
+
 ```json
 {
   "shares": 800, "net_debt": 1200, "price": 18.0,
@@ -32,17 +45,53 @@ python3 scripts/dcf_calc.py --input examples/input.json
 }
 ```
 
-## 八步流程（详见 SKILL.md）
-1. 定标的与视角 → 2. 取 FCF 基数 → 3. 设两阶段 → 4. 定 WACC → 5. 算现值 → 6. 敏感性 → 7. 下行倒推 → 8. 仓位上限。
+Point your agent at [`SKILL.md`](SKILL.md). Stdlib only, no pip install.
 
-## 仓位倒推规则（核心纪律）
-| 下行地板 / 市价 | 档位 | 最大仓位 |
+## What comes out
+
+1. **Base-case intrinsic value per share** — 2-stage FCF, explicit period + terminal value
+2. **Sensitivity matrix** — WACC × terminal growth, so you see how much of your answer is assumption
+3. **Downside floor** — growth haircut, WACC uplift, margin compression applied together
+4. **Position cap** — a tier, not a suggestion
+
+### Position sizing rule
+
+| Downside floor / market price | Tier | Max position |
 |---|---|---|
-| ≥ 1.5× | 可建仓 | 可正常建仓（按组合上限） |
-| 1.0× – 1.5× | 小仓 | ≤ 组合 5–10% |
-| < 1.0× | 不碰 | 0% |
+| ≥ 1.5× | Build | up to your normal portfolio limit |
+| 1.0× – 1.5× | Small | ≤ 5–10% of portfolio |
+| < 1.0× | Don't touch | 0% |
 
-先确认环境允许进攻（见 `macro-dashboard`），再用本 skill 定买什么、买多少；再用 `valuation-comps` 校验贵贱。
+The floor is not a price target. It is the number that decides size.
 
-## 许可
-MIT。分析结论仅供参考，投资决策由人负责。
+## Guardrails built into the script
+
+- **`WACC ≤ g` raises an error.** A Gordon terminal value with growth at or above the discount
+  rate is not a valuation, it's a typo with a decimal point.
+- **The downside floor must sit below the base case.** If your stress case is higher than your
+  base case, your assumptions contradict each other.
+- **Assumption ranges must be defensible.** [`references/assumptions_bounds.md`](references/assumptions_bounds.md)
+  gives the ranges for WACC and growth; stepping outside them requires written justification.
+- **A >20% gap vs. comps blocks the conclusion.**
+- Methodology, including why terminal value dominates the answer and what to do about it:
+  [`references/dcf_methodology.md`](references/dcf_methodology.md)
+
+## The 8 steps
+
+Frame the target → get a clean FCF base → set two stages → pin the WACC → discount → run the
+sensitivity grid → stress to the floor → size the position.
+
+## Part of a three-skill loop
+
+| Skill | Question it answers |
+|---|---|
+| [**macro-dashboard**](https://github.com/leo-bone/macro-dashboard) | Should I be deploying capital at all right now? |
+| [**valuation-comps**](https://github.com/leo-bone/valuation-comps) | Is this cheap or expensive relative to its peers? |
+| **dcf-quick** (here) | What is it worth, what is my downside, how big a position? |
+
+Check the macro switch before you size anything. A great floor in a risk-off regime is still
+a bad trade.
+
+## License
+
+MIT. A model is not a forecast. The decision stays yours.

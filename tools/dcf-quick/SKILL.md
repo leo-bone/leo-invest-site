@@ -1,77 +1,111 @@
 ---
 name: dcf-quick
-title: DCF Quick（单页速算 DCF · 下行倒推）
-summary: 给一个标的，单页产出两阶段 DCF 估值区间 + 下行地板，并把"最大仓位"由最坏情况倒推，而非由机会大小正推。投资纪律的量化外骨骼。
+title: DCF Quick — One-Page DCF, Position Sized from the Downside
+summary: Give it a ticker and it produces a one-page two-stage DCF range plus a downside floor, then derives the maximum position from the worst case rather than from the size of the opportunity. A quantitative exoskeleton for investing discipline.
 read_when:
-  - 用户要做绝对估值 / DCF，但想要快、可复现、单页能看完
-  - 用户问"这家公司内在价值大概多少、现在买安全边际够不够"
-  - 用户要先把最坏情况想清楚再定仓位（下行倒推）
-  - 用户提到 "dcf" "现金流折现" "内在价值" "安全边际" "仓位倒推"
+  - user wants absolute valuation / a DCF, but wants it fast, reproducible and readable on one page
+  - user asks what a company is intrinsically worth and whether the margin of safety is enough
+  - user wants the worst case settled before deciding position size (sizing from the downside)
+  - user mentions "dcf" "discounted cash flow" "intrinsic value" "margin of safety" "position sizing"
 ---
 
-# DCF Quick（单页速算 DCF · 下行倒推）
+> **English** · [简体中文](SKILL_CN.md)
 
-一个让 coding agent 跑**简化两阶段 DCF** 的可复用 skill，并强制产出「下行地板」与「由最坏情况倒推的仓位上限」。
-设计哲学同 Zara Zhang 的 `frontend-slides`：能复用、能复现、能校验才值得做；也同 `valuation-comps`——本 skill 给绝对价值锚，comps 给相对锚，二者交叉验证。
+# DCF Quick
 
-**本 skill 跑 `scripts/dcf_calc.py` 做全部算术**：agent 负责取数与定假设，折现/敏感性/下行地板/仓位由脚本算，避免"垃圾进垃圾出"里再叠加心算错。
+A reusable skill that has a coding agent run a **simplified two-stage DCF**, and that forces the
+production of a **downside floor** and a **position ceiling derived from the worst case**.
+Same philosophy as Zara Zhang's `frontend-slides` — reusable, reproducible, verifiable — and
+complementary to `valuation-comps`: this skill supplies the absolute anchor, comps the relative one,
+and the two cross-check each other.
 
-## 核心纪律（先于任何计算）
-**先想清亏多少，再想赚多少。** 仓位结论**不基于基准情形**，而基于「下行地板」：
-用 worst-case 假设算出的最低内在价值，对照当前市价得到安全边际；只有下行地板仍有足够缓冲时，才谈得上"能买、能买多少"。
-这与 Leo 的硬纪律一致——仓位由最坏情况倒推，不由机会大小正推。
+**This skill runs `scripts/dcf_calc.py` for all arithmetic.** The agent fetches data and sets
+assumptions; the script handles discounting, sensitivity, the downside floor and position sizing, so
+you don't stack mental-math errors on top of "garbage in, garbage out".
 
-## 何时使用
-- 需要绝对估值锚（comps 只给相对贵贱，DCF 给"它值多少钱"）；
-- 想快速判断安全边际是否充足；
-- 要把"该买多少"从拍脑袋改成"由最坏情况倒推"。
+## Core discipline (before any calculation)
+**Work out how much you can lose before thinking about how much you might make.** The position
+conclusion is **not built on the base case** — it's built on the **downside floor**: recompute
+intrinsic value under worst-case assumptions, compare against the current price to get the margin of
+safety, and only if the floor still leaves enough buffer can you talk about whether to buy and how
+much. This matches Leo's hard rule — position size is derived from the worst case, not from the size
+of the opportunity.
 
-## 八步流程（每步留痕）
-1. **定标的与视角**：代码/名称 + 买方视角。记录当前市价、总股本、市值、净负债（净负债 = 有息负债 − 现金）。
-2. **取 FCF 基数**：优先经营现金流 − 资本开支（来自 `westock-data`/财报）。若不披露 FCF，用净利润 + 折旧摊销 − capex 近似，并标注"近似"。
-3. **设两阶段**：显式期 N=5–10 年，给出分段或逐年增长率（依据：历史、行业、一致预期）；终值用 Gordon（g < 长期 GDP/通胀）**或**退出 EV/EBITDA 倍数，二选一并说明（见 `references/dcf_methodology.md`）。
-4. **定 WACC**：折现率 = 无风险利率 + 风险溢价 + β/规模溢价。WACC 不是调参玩具，假设要可辩护（见 `references/assumptions_bounds.md` 的可辩护范围与红线）。
-5. **算现值**：脚本折现显式期 FCF + 折现终值 = 企业价值；减净负债得权益价值，除股本得每股内在价值（基准）。
-6. **敏感性**：WACC × 增长率（或终值倍数）矩阵，给每股内在价值区间（非单点）。
-7. **下行倒推（必做）**：把假设压到 worst-case（增长下修 30–50%、WACC 上修 100–150bp、利润率压缩），重算「下行地板」每股价值。对照市价算安全边际。
-8. **出结论 + 仓位上限**：基于下行地板给"最大仓位"建议（规则见脚本与 `references/assumptions_bounds.md`）：下行地板 > 1.5×市价才考虑建仓；1.0–1.5× 仅小仓；< 1.0× 不碰。明确触发重估的变量。
+## When to use
+- You need an absolute valuation anchor (comps only tell you relative cheapness; DCF tells you what
+  it's worth).
+- You want a quick read on whether the margin of safety is sufficient.
+- You want to convert "how much should I buy" from a guess into something derived from the worst case.
 
-## 数据来源（按优先级，严禁编造）
-- 首选 `westock-data`：市值、净负债、FCF、一致预期。
-- 备选 `akshare-stock` / `neodata-financial-search`：补 A 股明细。
-- 兜底 `WebSearch` / `WebFetch`：年报 IR、行情页。
-- 任何缺失字段标 `N/A` 并注明来源与原因；不在文内填占位假数。
+## The eight steps (leave a trace at each)
 
-## 输出规范（单页 Markdown，结构见 `examples/sample-dcf.md`）
-- 假设表（FCF 基数、N、增长率、WACC、终值法）；
-- 折现计算表（显式期 + 终值）；
-- 敏感性矩阵；
-- **下行地板**块（worst-case 假设 + 结果 + 安全边际）；
-- 仓位上限结论（由最坏情况倒推，非机会大小）；
-- 附 `scripts/dcf_calc.py` 输出留痕，保证可复现。
+1. **Define target and vantage**: ticker / name plus a buy-side vantage. Record current price, shares
+   outstanding, market cap and net debt (net debt = interest-bearing debt − cash).
+2. **Take the FCF base**: preferably operating cash flow − capex (from `westock-data` or the filings).
+   If FCF isn't disclosed, approximate with net income + D&A − capex and label it "approximate".
+3. **Set the two stages**: explicit period N = 5–10 years, with staged or year-by-year growth rates
+   (justified by history, industry, consensus). Terminal value uses Gordon (g below long-run GDP /
+   inflation) **or** an exit EV/EBITDA multiple — pick one and say why (see
+   `references/dcf_methodology.md`).
+4. **Set WACC**: discount rate = risk-free + risk premium + beta / size premium. WACC is not a tuning
+   knob; assumptions must be defensible (see the defensible ranges and red lines in
+   `references/assumptions_bounds.md`).
+5. **Compute present value**: the script discounts explicit-period FCF plus discounted terminal value
+   to enterprise value; subtract net debt for equity value, divide by shares for intrinsic value per
+   share (base case).
+6. **Sensitivity**: a WACC × growth (or terminal multiple) matrix giving a range of intrinsic value per
+   share, not a point.
+7. **Downside derivation (mandatory)**: compress assumptions to worst case (growth cut 30–50%, WACC
+   raised 100–150bp, margin compression) and recompute the **downside floor** per share. Compare
+   against price for the margin of safety.
+8. **Conclude plus position ceiling**: based on the floor, give a **maximum position** (rules in the
+   script and `references/assumptions_bounds.md`): floor above 1.5× price → consider building a
+   position; 1.0–1.5× → small position only; below 1.0× → don't touch. Name the variables that would
+   trigger a re-run.
 
-## 校验与红线（可靠性兜底）
-- WACC ≤ 终值增长率 g → 脚本直接报错（Gordon 公式发散），禁止硬算；
-- 基准每股与 comps 隐含值偏离 >20% → 禁止同时给"买"和"便宜"，先解冲突；
-- 下行地板必须 < 基准值（worst-case 不能比乐观还高），否则假设矛盾；
-- 所有假设标注数据日期与来源；WACC/增长率超出 `references/assumptions_bounds.md` 可辩护区间时必须显式论证。
+## Data sources (in priority order; never fabricate)
+- `westock-data` first: market cap, net debt, FCF, consensus estimates.
+- Fallbacks: `akshare-stock` / `neodata-financial-search` for A-share detail.
+- Last resort: `WebSearch` / `WebFetch` — annual reports, IR, quote pages.
+- Mark any missing field `N/A` with source and reason. Never fill placeholder numbers.
 
-## 边界与免责
-- DCF 对假设极敏感，"垃圾进垃圾出"；永远用 `valuation-comps` 交叉验证。
-- 下行地板是纪律工具，不是精确底部；它回答"最坏我能接受吗"，不回答"会涨到哪"。
-- 标注数据日期与来源；投资决策由人负责，本 skill 只产出可复现的分析骨架。
+## Output format (one page of Markdown; structure in `examples/sample-dcf.md`)
+- Assumptions table (FCF base, N, growth, WACC, terminal method);
+- Discounting table (explicit period + terminal value);
+- Sensitivity matrix;
+- **Downside floor** block (worst-case assumptions + result + margin of safety);
+- Position ceiling conclusion (from the worst case, not the opportunity size);
+- Append the raw `scripts/dcf_calc.py` output so it's reproducible.
 
-## 目录结构
+## Checks and red lines (reliability floor)
+- WACC ≤ terminal growth g → the script throws an error (Gordon diverges); do not compute anyway.
+- Base-case per share deviating from the comps-implied value by more than 20% → you may not state
+  both "buy" and "cheap"; resolve the conflict first.
+- The downside floor must be below the base case (worst case cannot exceed the optimistic case) —
+  otherwise the assumptions contradict each other.
+- Stamp every assumption with data date and source; WACC or growth outside the defensible band in
+  `references/assumptions_bounds.md` must be explicitly argued.
+
+## Boundaries and disclaimer
+- A DCF is extremely sensitive to assumptions — garbage in, garbage out. Always cross-check with
+  `valuation-comps`.
+- The downside floor is a discipline tool, not a precise bottom. It answers "can I live with the worst
+  case", not "how high will it go".
+- Stamp data date and source. Investment decisions belong to a human; this skill produces a
+  reproducible analysis skeleton.
+
+## Layout
 ```
 dcf-quick/
-  SKILL.md
+  SKILL.md                  # this file (English)
+  SKILL_CN.md               # 简体中文版
   README.md
   references/
-    dcf_methodology.md     # 两阶段、终值法选择、折现细节
-    assumptions_bounds.md  # WACC/增长率/利润率的可辩护范围与红线
+    dcf_methodology.md      # two-stage model, terminal method choice, discounting detail
+    assumptions_bounds.md   # defensible ranges and red lines for WACC / growth / margin
   scripts/
-    dcf_calc.py            # 计算内核（基准/敏感性/下行地板/仓位）
-    dcf_calc_test.py       # 单测
+    dcf_calc.py             # calculation core (base / sensitivity / downside floor / position)
+    dcf_calc_test.py        # unit tests
   examples/
-    sample-dcf.md          # 脱敏样例
+    sample-dcf.md           # anonymised sample
 ```

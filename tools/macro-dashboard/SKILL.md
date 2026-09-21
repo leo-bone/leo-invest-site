@@ -1,62 +1,85 @@
 ---
 name: macro-dashboard
-title: Macro Dashboard（宏观四变量周更面板）
-summary: 每周刷新四个驱动变量（利率/信用/盈利预期/流动性），输出"攻守开关"结论而非点位预测。把"仓位由最坏情况倒推"的纪律变成可周更的仪表盘。
+title: Macro Dashboard — Weekly Four-Variable Regime Panel
+summary: Refresh four driving variables weekly (rates / credit / earnings expectations / liquidity) and output an attack-or-defend switch rather than a price forecast. Turns the discipline of sizing from the worst case into a panel you can update every week.
 read_when:
-  - 用户要周度/定期复盘宏观环境对风险资产的影响
-  - 用户问"现在该进攻还是防守"
-  - 用户提到 "宏观" "攻守" "仓位开关" "四变量" "风险资产环境"
+  - user wants a weekly or periodic review of how the macro environment affects risk assets
+  - user asks "should I be attacking or defending right now"
+  - user mentions "macro" "risk-on risk-off" "position switch" "four variables" "risk asset environment"
 ---
 
-# Macro Dashboard（宏观四变量周更面板）
+> **English** · [简体中文](SKILL_CN.md)
 
-把宏观监控**结构化、可周更、可复现**的 skill。不预测点位，只跟踪驱动风险资产定价的四个变量，并输出"攻守开关"。
-这是 `valuation-comps` / `dcf-quick` 的"自上而下开关"层：DCF/comps 解决"买什么、值多少"，本 skill 解决"现在该不该满仓买"。
+# Macro Dashboard
 
-**跑 `scripts/score_snapshot.py` 做档位判定**：agent 负责取四变量最新值与判定状态，攻守汇总与硬规则由脚本算，避免人为"乐观调整"档位。
+A skill that makes macro monitoring **structured, weekly-refreshable and reproducible**. It does not
+forecast price levels — it tracks the four variables that drive the pricing of risk assets and outputs
+an **attack/defend switch**. This is the top-down switch layer above `valuation-comps` and
+`dcf-quick`: those two answer "what to buy and what it's worth", this one answers "should you be
+buying at full size right now".
 
-## 四个变量（驱动链）
-1. **利率**：实际利率走向（名义利率 − 通胀预期）。上行压久期资产，下行修复风险偏好。看实际利率，不看美联储嘴。
-2. **信用**：系统会不会突然缺钱。高收益债利差、商业票据利差、离岸美元流动性；任一快速走阔 = margin call 前兆。
-3. **盈利预期**：故事能否兑现。盈利修正广度（上调 vs 下调家数）比单看 EPS 增速更提前。
-4. **流动性**：池子里的水涨退。央行资产负债表、逆回购、广义货币增速。
+**Run `scripts/score_snapshot.py` for the regime call**: the agent fetches the latest values and the
+status of each variable, while the script computes the aggregate and applies the hard rules — so nobody
+"optimistically adjusts" the stance.
 
-## 五步流程（每周同一定时）
-1. **固定时点抓取**：每周同一定时（如周日）抓四变量最新值（来源见下）。
-2. **三态判定**：每变量给 友好 / 中性 / 警戒，附信号与数值（脚本可按阈值自动分类，见 `references/indicators.md`）。
-3. **攻守汇总**：绿灯数 = 进攻档位。脚本按规则判定（见 `references/regime_rules.md`）。
-4. **输出面板**：表格 + 一句话结论（攻/守 + 理由），**非点位预测**。
-5. **留痕**：append 到 `macro-dashboard.md` 快照，便于回看信号转折。
+## The four variables (the transmission chain)
+1. **Rates**: the direction of *real* rates (nominal rate − inflation expectations). Rising compresses
+   long-duration assets; falling repairs risk appetite. Watch real rates, not what the Fed says.
+2. **Credit**: whether the system suddenly runs short of money. High-yield spreads, commercial paper
+   spreads, offshore dollar liquidity — any of them widening quickly is the pre-symptom of a margin call.
+3. **Earnings expectations**: whether the story can be cashed in. The breadth of revisions (number
+   upgraded versus downgraded) leads EPS growth rates.
+4. **Liquidity**: whether the pool is filling or draining. Central bank balance sheets, reverse repos,
+   broad money growth.
 
-## 数据来源（按优先级，严禁编造）
-- `westock-data` / `macro-monitor` skill：利率、利差、流动性指标。
-- `WebSearch` / `WebFetch`：美联储、央行、一致预期源。
-- 兜底：行情页/财经终端。缺失标 `N/A` 并注明。
+## Five steps (same slot every week)
+1. **Fetch at a fixed slot**: pull the latest value of each variable at the same time each week
+   (e.g. Sunday). Sources below.
+2. **Three-state call**: rate each variable friendly / neutral / alert, with the signal and the number
+   (the script can classify automatically against thresholds — see `references/indicators.md`).
+3. **Aggregate**: green-light count maps to the attack stance. The script applies the rules (see
+   `references/regime_rules.md`).
+4. **Output the panel**: a table plus a one-line conclusion (attack or defend, with the reason).
+   **No price forecasts.**
+5. **Keep a trace**: append to the `macro-dashboard.md` snapshot so you can look back at where signals
+   turned.
 
-## 输出规范
-`macro-dashboard.md`：四变量表（变量 / 最新值 / 状态灯 / 信号）+ 攻守结论 + 下周关注触发条件。结构见 `examples/sample-dashboard.md`。
-附 `scripts/score_snapshot.py` 输出留痕。
+## Data sources (in priority order; never fabricate)
+- `westock-data` / `macro-monitor` skill: rates, spreads, liquidity indicators.
+- `WebSearch` / `WebFetch`: Federal Reserve, central banks, consensus sources.
+- Fallback: quote pages / financial terminals. Mark missing items `N/A` with a note.
 
-## 校验与红线（可靠性兜底）
-- **信用或流动性任一警戒 = 强制防守**，覆盖绿灯数（硬规则，不允许"我觉得还能扛"）。
-- 任变量 `N/A` 时，该变量不计入绿灯，但必须在结论中显式标注"X 未知，结论置信度下降"。
-- 档位只给攻守指引，不给点位；与 `dcf-quick` 下行地板配合才有"买多少"。
+## Output format
+`macro-dashboard.md`: a four-variable table (variable / latest value / status light / signal) plus the
+attack-or-defend conclusion plus the triggers to watch next week. Structure in
+`examples/sample-dashboard.md`. Append the `scripts/score_snapshot.py` output as a trace.
 
-## 边界与免责
-- 四变量是开关不是打分表；信用+流动性同时报警即守，不犹豫。
-- 与"仓位由最坏情况倒推"纪律一致：先确认环境允许进攻，再用 `dcf-quick` 定买什么、买多少，最后用 `valuation-comps` 校验贵贱。
-- 结论为判断辅助，决策由人负责。
+## Checks and red lines (reliability floor)
+- **Credit or liquidity at alert = forced defence**, overriding the green-light count (a hard rule —
+  "I think it can hold" is not permitted).
+- When any variable is `N/A`, it doesn't count toward the green lights, but the conclusion must state
+  explicitly that "X is unknown, confidence is reduced".
+- The stance gives directional guidance only, never price levels; pair it with the `dcf-quick` downside
+  floor to get "how much to buy".
 
-## 目录结构
+## Boundaries and disclaimer
+- The four variables are a switch, not a scorecard. Credit and liquidity both alerting means defend,
+  without hesitation.
+- Consistent with sizing from the worst case: confirm the environment permits attack, then use
+  `dcf-quick` to decide what and how much, then `valuation-comps` to check whether it's cheap or dear.
+- Conclusions support judgement; decisions belong to a human.
+
+## Layout
 ```
 macro-dashboard/
-  SKILL.md
+  SKILL.md                  # this file (English)
+  SKILL_CN.md               # 简体中文版
   README.md
   references/
-    indicators.md     # 四变量具体指标、数据源、阈值
-    regime_rules.md   # 攻守档位规则、信用/流动性报警硬规则
+    indicators.md           # concrete indicators, sources and thresholds for the four variables
+    regime_rules.md         # attack/defend rules, credit & liquidity hard override
   scripts/
-    score_snapshot.py # 攻守档位判定（含硬规则）
+    score_snapshot.py       # regime call (hard rules included)
     score_snapshot_test.py
   examples/
     sample-dashboard.md
